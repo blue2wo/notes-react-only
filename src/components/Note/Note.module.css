@@ -1,0 +1,13 @@
+.note {
+  background: #fff;
+  border-top: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  border-left: 1px solid #ebebeb;
+  border-bottom: none; 
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0px 2px 5px 0px #ebebeb;  
+  box-sizing: border-box;
+  height: 5rem;
+  margin-top: 20px;
+  padding: 10px;
+}

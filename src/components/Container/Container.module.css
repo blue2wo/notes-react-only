@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+  /* width: 1000px; */
+}
+
+@media (min-width: 500px) {
+  .container {
+    max-width: 450px;
+  }
+}
+
+@media (min-width: 699px) {
+  .container {
+    max-width: 650px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .container {
+    max-width: 900px;
+  }
+}
