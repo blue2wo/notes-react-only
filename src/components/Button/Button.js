@@ -30,9 +30,9 @@ const Button = (props) => {
       brBL={props.brBL}
       backgroundColor={props.backgroundColor}
       backgroundColorHover={props.backgroundColorHover}
-      onClick={props.onClick}
-    >
-      {props.children}</ButtonStyled>
+      onClick={props.onClick}>
+        {props.children}
+    </ButtonStyled>
   //  <button className={classes.btn}>{props.children}</button>
   )
 }

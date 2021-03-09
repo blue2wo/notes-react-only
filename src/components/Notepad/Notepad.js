@@ -14,16 +14,22 @@ const Notepad = (props) => {
           type="text"
           placeholder="Your note"
           onChange={props.handleOnUserInput}
-          value={props.userInput}
-        />
+          value={props.userInput}/>
         <Button 
           backgroundColor={'#ebebeb'} 
           backgroundColorHover={'#0f9d58'} 
           brBL={'10'} 
           brBR={'10'}
-        >
-          Submit
+          >
+            {props.notepadMode.toUpperCase()}
         </Button>
+        {/* <Button 
+          backgroundColor={'#ebebeb'} 
+          backgroundColorHover={'#0f9d58'} 
+          brBL={'10'} 
+          brBR={'10'}>
+            Edit
+        </Button> */}
         <p>{props.note}</p>
       </Container>
   </Aux>
