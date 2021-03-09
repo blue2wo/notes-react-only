@@ -1,14 +1,14 @@
 import * as React from 'react';
 import './App.css';
-import firebase from '../src/firebase'; // <--- add this line
-
+import { firebase } from './initFirebase';
 
 // COMPONENTS //
-import axiosInstance from '../src/axios-note'
 import Container from './components/Container/Container';
 import Layout from './components/Layout/Layout';
 import Notepad from './components/Notepad/Notepad';
 import Note from './components/Note/Note';
+
+const db = firebase.database();
 
 const App = () => {
   //---------------------//
@@ -28,31 +28,81 @@ const App = () => {
   }
 
   const HandleOnPostingNote = (event) => {
+    let myDate = new Date();
+    let myDate2 = myDate.toLocaleString();
     if (userInputState.userInput.trim().length < 1) {
       event.preventDefault();
       alert(notepadModeState.mode + ": type something");
     } else {
       // POST new note
-      event.preventDefault();
-      setNotepadModeState((state) => ({ ...state, loading : true }))
-      let myDate = new Date();
-      let myDate2 = myDate.toLocaleString();
-      const note = {
-        id: Date.now(),
-        dateCreated: myDate2,
-        content: userInputState.userInput
-      };
-      axiosInstance.post('notes.json', note)
-      .then(response => {
-        setNotepadModeState((state) => ({ ...state, loading : false }))
+      if (notepadModeState.mode === "submit") {
+        event.preventDefault();
+        const notesRef = db.ref("notes");
+        const newNoteRef = notesRef.push();
         setUserInputState((state) => ({ ...state, userInput: "" }))
-      })
-      .catch(error => {
-        setNotepadModeState((state) => ({ ...state, loading : false }))
-      });
+        setNotepadModeState((state) => ({ ...state, loading : true }))
+        // let myDate = new Date();
+        // let myDate2 = myDate.toLocaleString();
+        newNoteRef.set({
+          id: Date.now(),
+          dateCreated: myDate2,
+          content: userInputState.userInput
+        })
+      } else {
+        event.preventDefault();
+
+        const indexOfNote = selectedNoteState.selectedNote;
+        const indexOfEdit = {
+          id: contentState.notes[indexOfNote].id,
+          dateCreated: contentState.notes[indexOfNote].dateCreated,
+          dateEdited: myDate2,
+          content: userInputState.userInput
+        }
+        console.log("Index of note to be editted: ", indexOfNote, " ", indexOfEdit);
+        db.ref(`notes/${indexOfNote}`).set(indexOfEdit)
+
+    
+        // RESET state values after edit submit
+        setUserInputState((state) => ({ ...state, userInput: "" }))
+        setSelectedNoteState((state) => ({ ...state, selectedNote: null }))
+      }
     }
   }
 
+  // https://www.youtube.com/watch?v=P-XNZdKQUR0
+
+  React.useEffect(() => {
+    const ref = db.ref('notes');
+
+    ref.on("value", (snapshot) => {
+      // console.log(snapshot.val());
+      setNotepadModeState((state) => ({ ...state, loading : false }))
+
+      let notes = snapshot.val();
+      setContentState((state) => ({
+        ...state, notes
+      }))
+    });
+
+    return () => ref.off();
+  }, [])
+
+  //-------COPIES specific note content based on array value into notepad-------//
+  const HandleOnEditNoteFromState = (event, index) => {
+    const copiedUserInputFromState = contentState.notes[index].content;
+    // console.log("Note content sent to notepad to edit: ", copiedUserInputFromState);
+
+    const indexOfNote = selectedNoteState.selectedNote;
+    const indexOfEdit = contentState.notes[indexOfNote]
+
+    console.log(indexOfEdit);
+
+    setUserInputState((state) => ({ ...state, userInput: copiedUserInputFromState }))
+    setSelectedNoteState((state) => ({ ...state, selectedNote: index }))
+    setNotepadModeState((state) => ({ ...state, mode: "edit submit"}))
+
+  }
+  
   // const HandleOnPostingNote = (event) => {
   //   if (userInputState.userInput.trim().length < 1) {
   //     event.preventDefault();
@@ -115,8 +165,12 @@ const App = () => {
             const theNote = contentState.notes[noteKey];
             return(
               <Note 
-                key={theNote.id}
+                key={noteKey}
+                dataValue={noteKey}
+                HandleOnEditNoteFromState={HandleOnEditNoteFromState} 
               >
+                {noteKey}
+                <br />
                 {theNote.content}
               </Note>
             )

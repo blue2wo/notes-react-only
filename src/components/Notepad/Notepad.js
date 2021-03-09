@@ -1,13 +1,13 @@
 import * as React from 'react';
 import classes from './Notepad.module.css';
-import Aux from '../../hoc/Aux';
+import Auxillery from '../../hoc/Auxillery';
 import Button from '../Button/Button';
 import Container from '../Container/Container';
 
 
 const Notepad = (props) => {
   return (
-    <Aux>
+    <Auxillery>
       <Container>
         <textarea
           className={classes.textarea}
@@ -21,12 +21,12 @@ const Notepad = (props) => {
           brBL={'10'} 
           brBR={'10'}
           >
-            {/* {props.notepadMode.toUpperCase()} */}
-            submit
+            {props.notepadMode.toUpperCase()}
+            
         </Button>
         <p>{props.note}</p>
       </Container>
-  </Aux>
+  </Auxillery>
   )
 }
 
