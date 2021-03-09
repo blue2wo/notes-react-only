@@ -21,15 +21,9 @@ const Notepad = (props) => {
           brBL={'10'} 
           brBR={'10'}
           >
-            {props.notepadMode.toUpperCase()}
+            {/* {props.notepadMode.toUpperCase()} */}
+            submit
         </Button>
-        {/* <Button 
-          backgroundColor={'#ebebeb'} 
-          backgroundColorHover={'#0f9d58'} 
-          brBL={'10'} 
-          brBR={'10'}>
-            Edit
-        </Button> */}
         <p>{props.note}</p>
       </Container>
   </Aux>

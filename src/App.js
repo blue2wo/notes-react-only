@@ -1,7 +1,10 @@
 import * as React from 'react';
 import './App.css';
+import firebase from '../src/firebase'; // <--- add this line
+
 
 // COMPONENTS //
+import axiosInstance from '../src/axios-note'
 import Container from './components/Container/Container';
 import Layout from './components/Layout/Layout';
 import Notepad from './components/Notepad/Notepad';
@@ -11,17 +14,10 @@ const App = () => {
   //---------------------//
   //-------STATES--------//
   //---------------------//
-  const [notepadModeState, setNotepadModeState] = React.useState({ editMode: false, mode: "submit" })
+  const [notepadModeState, setNotepadModeState] = React.useState({ mode: "submit", loading: false })
   const [selectedNoteState, setSelectedNoteState] = React.useState({ selectedNote: "" })
   const [userInputState, setUserInputState] = React.useState({ userInput: "" })
-  const [contentState, setContentState] = React.useState({
-    notes: [
-      // {content: "first note"}, 
-      // {content: "second note"},
-      // {content: "Third note"},
-      // {content: "Fourth note"},
-    ],
-  })
+  const [contentState, setContentState] = React.useState({notes: {}})
 
   //-------UPDATES state for each key-value typed in notepad-------//
   const HandleOnUserInput = (event) => {
@@ -31,105 +27,92 @@ const App = () => {
     }))
   }
 
-  const HandleOnSubmitNoteToState = (event) => {
+  const HandleOnPostingNote = (event) => {
     if (userInputState.userInput.trim().length < 1) {
       event.preventDefault();
       alert(notepadModeState.mode + ": type something");
     } else {
-      //-------SUBMITS user input to create new note-------//
-      if (notepadModeState.mode === "submit") {
-        event.preventDefault();
-        setContentState((state) => ({
-          ...state,
-            notes: [...state.notes, { content : userInputState.userInput }]
-        }))
+      // POST new note
+      event.preventDefault();
+      setNotepadModeState((state) => ({ ...state, loading : true }))
+      let myDate = new Date();
+      let myDate2 = myDate.toLocaleString();
+      const note = {
+        id: Date.now(),
+        dateCreated: myDate2,
+        content: userInputState.userInput
+      };
+      axiosInstance.post('notes.json', note)
+      .then(response => {
+        setNotepadModeState((state) => ({ ...state, loading : false }))
         setUserInputState((state) => ({ ...state, userInput: "" }))
-        setNotepadModeState((state => ({ ...state, editMode: true })))
-      } else {
-        //-------SUBMITS edited note content to specific note based on array value-------//
-        event.preventDefault();
-        const indexOfNote = selectedNoteState.selectedNote;
-        const indexOfEdit = contentState.notes[indexOfNote]
-        console.log("Index of note to be editted: ", indexOfNote, " ", indexOfEdit);
-
-        // 1. Make a shallow copy of the notes
-        let copiedNotes = [...contentState.notes];
-        // 2. Make a shallow copy of the note you want to mutate
-        let copiedNote = {...copiedNotes[indexOfNote]};
-        // 3. Replace the property you're intested in
-        copiedNote.content = userInputState.userInput;
-        // 4. Put it back into our array. N.B. we *are* mutating the array here, but that's why we made a copy first
-        copiedNotes[indexOfNote] = copiedNote;
-        // 5. Set the state to our new copy
-        console.log(copiedNotes);
-        setContentState((state) => ({
-          ...state, 
-            notes : copiedNotes,
-        }))
-
-        // RESET state values after edit submit
-        setUserInputState((state) => ({ ...state, userInput: "" }))
-        setSelectedNoteState((state) => ({ ...state, selectedNote: null }))
-      }
+      })
+      .catch(error => {
+        setNotepadModeState((state) => ({ ...state, loading : false }))
+      });
     }
   }
-3
-  //-------DELETES specific note based on array index value-------//
-  const HandleOnDeletingNoteFromState = (event, index) => {
-    const stateBeforeDelete = [...contentState.notes]
-    console.log("Note that will be deleted: ", stateBeforeDelete[index]);  
 
-    stateBeforeDelete.splice(index, 1);
-    console.log("New state after deleted note: ", stateBeforeDelete);
+  // const HandleOnPostingNote = (event) => {
+  //   if (userInputState.userInput.trim().length < 1) {
+  //     event.preventDefault();
+  //     alert(notepadModeState.mode + ": type something");
+  //   } else {
+  //     // POST new note
+  //     event.preventDefault();
+  //     setNotepadModeState((state) => ({ ...state, loading : true }))
+  //     let myDate = new Date();
+  //     let myDate2 = myDate.toLocaleString();
+  //     const note = {
+  //       id: Date.now(),
+  //       dateCreated: myDate2,
+  //       content: userInputState.userInput
+  //     };
+  //     axiosInstance.post('notes.json', note)
+  //     .then(response => {
+  //       setNotepadModeState((state) => ({ ...state, loading : false }))
+  //       setUserInputState((state) => ({ ...state, userInput: "" }))
+  //     })
+  //     .catch(error => {
+  //       setNotepadModeState((state) => ({ ...state, loading : false }))
+  //     });
+  //   }
+  // }
 
-    setContentState((state) => ({ ...state, notes: stateBeforeDelete }));
-    // RESET state values after edit submit
-    setUserInputState((state) => ({ ...state, userInput: "" }))
-    setSelectedNoteState((state) => ({ ...state, selectedNote: null }))
-  }
-
-  //-------COPIES specific note content based on array value into notepad-------//
-  const HandleOnEditNoteFromState = (event, index) => {
-    const copiedUserInputFromState = contentState.notes[index].content;
-    console.log("Note content sent to notepad to edit: ", copiedUserInputFromState);
-
-    setUserInputState((state) => ({ ...state, userInput: copiedUserInputFromState }))
-    setSelectedNoteState((state) => ({ ...state, selectedNote: index }))
-    setNotepadModeState((state) => ({ ...state, editMode: true, mode: "submit"}))
-  }
+  // React.useEffect(() => {
+  //   axiosInstance.get('notes.json')
+  //     .then(response => {
+  //       // console.log(response.data)
+  //       let notes = response.data
+  //       setContentState((state) => ({
+  //         ...state, notes
+  //       }))
+  //     })
+  //     .catch(error => {
+  //       console.log(error)
+  //     });
+  // }, [notepadModeState])
 
   return (
     <div className="App">
       <Layout>
         <div>
-          {notepadModeState.editMode.toString()}
           <form 
             name="noteSubmittion" 
             id="noteSubmittion" 
-            onSubmit={HandleOnSubmitNoteToState}
-            // onSubmit={HandleOnSubmitEdittedNote} 
+            onSubmit={HandleOnPostingNote}
             >
             <Notepad 
-              notepadMode={notepadModeState.mode}
               id="noteSubmissionTextField"
+              notepadMode={notepadModeState.mode}
               userInput={userInputState.userInput}
-              handleOnUserInput={HandleOnUserInput} />
+              handleOnUserInput={HandleOnUserInput} 
+            />
           </form>
         </div>
         <Container>
-          {contentState.notes.map((noteContent, index) => (
-            <Note 
-              key={index}
-              dataValue={index}
-              HandleOnDeletingNoteFromState={HandleOnDeletingNoteFromState}
-              HandleOnEditNoteFromState={HandleOnEditNoteFromState} 
-            >
-              {noteContent.content}
-            </Note>
-          ))}
-
-          {/* {Object.keys(noteState.notes).map(noteKey => {
-            const theNote = noteState.notes[noteKey];
+          {Object.keys(contentState.notes).map(noteKey => {
+            const theNote = contentState.notes[noteKey];
             return(
               <Note 
                 key={theNote.id}
@@ -137,7 +120,7 @@ const App = () => {
                 {theNote.content}
               </Note>
             )
-          })} */}
+          })}
         </Container>
       </Layout>
     </div>
@@ -145,3 +128,5 @@ const App = () => {
 }
 
 export default App;
+
+
