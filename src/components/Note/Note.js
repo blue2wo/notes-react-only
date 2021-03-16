@@ -9,12 +9,12 @@ const Note = (props) => {
   return (
     <Auxillery>
       <div className={classes.note}>{props.children}</div>
-      <div style={{ display: 'flex', flexDirection: 'row'}}>
+      <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '20px' }}>
         <Button 
           backgroundColor={'#ebebeb'} 
           backgroundColorHover={'#0f9d58'} 
           brBL={'10'}
-          onClick={(event) => props.HandleOnEditNoteFromState(event, props.dataValue)}
+          onClick={(event) => props.editNote(event, props.dataValue)}
           data-value={props.dataValue}>
             Edit
         </Button>
@@ -22,7 +22,7 @@ const Note = (props) => {
           backgroundColor={'#ebebeb'} 
           backgroundColorHover={'#ed2815'} 
           brBR={'10'} 
-          onClick={(event) => props.HandleOnDeletingNoteFromState(event, props.dataValue)}
+          onClick={(event) => props.deleteNote(event, props.dataValue)}
           data-value={props.dataValue}> 
             Delete
         </Button>

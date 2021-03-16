@@ -1,25 +1,26 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: auto;
-  /* width: 1000px; */
+.fixed {
+  position: absolute;
+  top: 10rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%; 
+  /* background: #f8f8f8; */
 }
 
 @media (min-width: 500px) {
-  .container {
+  .fixed {
     max-width: 450px;
   }
 }
 
 @media (min-width: 699px) {
-  .container {
+  .fixed {
     max-width: 650px;
   }
 }
 
 @media (min-width: 1000px) {
-  .container {
+  .fixed {
     max-width: 900px;
   }
 }
